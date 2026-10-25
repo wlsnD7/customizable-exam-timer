@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customizable Exam Timer</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<main id="setup" class="setup">
+  <header class="setup-head">
+    <h1 data-i18n="appTitle"></h1>
+    <select id="lang" class="plain" aria-label="Language">
+      <option value="zh">中文</option>
+      <option value="en">English</option>
+    </select>
+  </header>
+
+  <div class="settings">
+    <p id="storage-warning" class="alert" data-i18n="storageWarning" hidden></p>
+
+    <section class="section">
+      <h2 data-i18n="secInfo"></h2>
+      <div class="info">
+        <div class="logo-box">
+          <button type="button" id="logo-choose" data-i18n-label="logo">
+            <img id="logo-preview" alt="" hidden>
+            <span id="logo-empty">Logo</span>
+          </button>
+          <button type="button" id="logo-remove" class="logo-remove" data-i18n-label="removeImage" hidden>×</button>
+          <input type="file" id="logo-file" accept="image/*" hidden>
+        </div>
+        <div class="info-fields">
+          <input id="schoolName" data-i18n-ph="schoolName" data-i18n-label="schoolName">
+          <input id="examTitle" data-i18n-ph="examTitlePh" data-i18n-label="examTitle">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 data-i18n="secTime"></h2>
+      <div class="time-row">
+        <div class="seg" role="radiogroup">
+          <label><input type="radio" name="mode" value="clock"><span data-i18n="modeClock"></span></label>
+          <label><input type="radio" name="mode" value="duration"><span data-i18n="modeDuration"></span></label>
+        </div>
+        <span id="mode-clock" class="time-inputs">
+          <input type="time" id="startTime" data-i18n-label="start">
+          <span class="muted">–</span>
+          <input type="time" id="endTime" data-i18n-label="end">
+        </span>
+        <span id="mode-duration" class="time-inputs">
+          <input type="number" id="duration" min="1" max="1440" step="1" data-i18n-label="duration">
+          <span class="muted" data-i18n="minutes"></span>
+        </span>
+      </div>
+      <p id="time-error" class="error" hidden></p>
+    </section>
+
+    <section class="section">
+      <h2 data-i18n="secReminders"></h2>
+      <div id="reminders"></div>
+      <input type="file" id="audio-file" accept="audio/*" hidden>
+    </section>
+
+    <details class="more">
+      <summary data-i18n="moreSettings"></summary>
+      <div class="more-body">
+        <label class="field">
+          <span class="label" data-i18n="notice"></span>
+          <textarea id="notice" rows="2" maxlength="80" data-i18n-ph="noticePh"></textarea>
+          <span id="notice-count" class="counter"></span>
+        </label>
+        <div class="inline-fields">
+          <label class="field">
+            <span class="label" data-i18n="date"></span>
+            <input type="date" id="date">
+          </label>
+          <label class="field">
+            <span class="label" data-i18n="theme"></span>
+            <select id="theme">
+              <option value="dark" data-i18n="themeDark"></option>
+              <option value="light" data-i18n="themeLight"></option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="label" data-i18n="bannerSeconds"></span>
+            <span class="with-unit"><input type="number" id="bannerSeconds" min="3" max="300" step="1"><span data-i18n="seconds"></span></span>
+          </label>
+        </div>
+        <div class="more-actions">
+          <button type="button" id="import" data-i18n="importConfig"></button>
+          <button type="button" id="export" data-i18n="exportConfig"></button>
+          <button type="button" id="reset" class="ghost subtle" data-i18n="resetConfig"></button>
+          <input type="file" id="import-file" accept="application/json,.json" hidden>
+        </div>
+      </div>
+    </details>
+  </div>
+
+  <aside class="side">
+    <div id="preview" class="screen preview" aria-hidden="true"><div class="screen-content"></div></div>
+    <div class="preview-bar">
+      <div class="seg small" role="radiogroup">
+        <label><input type="radio" name="previewState" value="pre"><span data-i18n="previewPre"></span></label>
+        <label><input type="radio" name="previewState" value="running" checked><span data-i18n="previewRunning"></span></label>
+        <label><input type="radio" name="previewState" value="over"><span data-i18n="previewOver"></span></label>
+      </div>
+      <span class="spacer"></span>
+      <label class="check"><input type="checkbox" id="showProgress"><span data-i18n="showProgress"></span></label>
+      <label class="check"><input type="checkbox" id="showClock"><span data-i18n="showClock"></span></label>
+    </div>
+    <button type="button" id="enter" class="primary wide" data-i18n="enterExam"></button>
+  </aside>
+</main>
+
+<div id="display" class="display screen" hidden>
+  <div class="screen-content"></div>
+  <div class="d-toolbar">
+    <button type="button" id="btn-fullscreen" class="icon" data-i18n-label="fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/></svg>
+    </button>
+    <button type="button" id="btn-exit" class="icon" data-i18n-label="exitExam">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 8V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2M9 12h12l-3-3m0 6l3-3"/></svg>
+    </button>
+  </div>
+  <p id="sound-hint" class="sound-hint" data-i18n="enableSound" hidden></p>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script src="js/i18n.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/sound.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
